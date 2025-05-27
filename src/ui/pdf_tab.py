@@ -1,8 +1,10 @@
-from typing import Optional, List
+import os
+from typing import Optional, List, Any
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QListWidget, QListWidgetItem
 )
+from PySide6.QtCore import Qt
 from ..workers.pdf_generator import PDFGenerator
 
 class PDFTab(QWidget):
@@ -12,6 +14,15 @@ class PDFTab(QWidget):
         super().__init__(parent)
         self.resim_yollari: List[str] = []
         self._setup_ui()
+
+    def _get_main_window(self) -> Any:
+        """Ana pencereye erişim sağlar."""
+        parent = self.parent()
+        while parent is not None:
+            if hasattr(parent, 'log_yaz'):
+                return parent
+            parent = parent.parent()
+        return None
 
     def _setup_ui(self) -> None:
         """UI bileşenlerini oluşturur."""
@@ -50,15 +61,21 @@ class PDFTab(QWidget):
                 item = QListWidgetItem(f"📷 {os.path.basename(dosya_yolu)}")
                 item.setData(Qt.UserRole, dosya_yolu)
                 self.resim_listesi.addItem(item)
-            self.parent().log_yaz(f"{len(dosya_yollari)} resim eklendi", "normal")
+            main_window = self._get_main_window()
+            if main_window:
+                main_window.log_yaz(f"{len(dosya_yollari)} resim eklendi", "normal")
 
     def pdf_olustur(self) -> None:
         """PDF oluşturma işlemini başlatır."""
+        main_window = self._get_main_window()
+        if not main_window:
+            return
+
         if not self.resim_yollari:
-            self.parent().log_yaz("Lütfen önce resim seçin!", "kirmizi")
+            main_window.log_yaz("Lütfen önce resim seçin!", "kirmizi")
             return
 
         self.pdf_thread = PDFGenerator(self.resim_yollari)
-        self.pdf_thread.log_signal.connect(self.parent().log_yaz)
-        self.pdf_thread.finished_signal.connect(lambda: self.parent().log_yaz("PDF oluşturma tamamlandı!", "normal"))
+        self.pdf_thread.log_signal.connect(main_window.log_yaz)
+        self.pdf_thread.finished_signal.connect(lambda: main_window.log_yaz("PDF oluşturma tamamlandı!", "normal"))
         self.pdf_thread.start() 
