@@ -9,8 +9,6 @@ from reportlab.lib.units import cm
 from PIL import Image
 
 class PDFGenerator(QThread):
-    """PDF oluşturan iş parçacığı."""
-    
     log_signal: Signal = Signal(str, str)
     finished_signal: Signal = Signal()
 
@@ -23,7 +21,6 @@ class PDFGenerator(QThread):
         self.padding: float = 0 * cm
 
     def run(self) -> None:
-        """PDF oluşturma işlemini başlatır."""
         try:
             pdf_file: str = "resimler.pdf"
             c: canvas.Canvas = canvas.Canvas(pdf_file, pagesize=A4)
@@ -73,4 +70,4 @@ class PDFGenerator(QThread):
 
         except Exception as e:
             self.log_signal.emit(f"PDF oluşturma hatası: {str(e)}", "kirmizi")
-            self.finished_signal.emit() 
+            self.finished_signal.emit()

@@ -3,15 +3,12 @@ from typing import Optional, Dict, List
 from .base import BaseAPI
 
 class TwitchAPI(BaseAPI):
-    """Twitch API'si için sınıf."""
-    
     def __init__(self, client_id: str, client_secret: str) -> None:
         self.client_id: str = client_id
         self.client_secret: str = client_secret
         self.token: Optional[str] = self._get_token()
 
     def _get_token(self) -> Optional[str]:
-        """Twitch API token'ını alır."""
         url: str = "https://id.twitch.tv/oauth2/token"
         params: Dict[str, str] = {
             "client_id": self.client_id,
@@ -25,7 +22,6 @@ class TwitchAPI(BaseAPI):
             return None
 
     def search(self, game_name: str) -> Optional[str]:
-        """Oyun adına göre arama yapar."""
         if not self.token:
             return None
         headers: Dict[str, str] = {
@@ -44,5 +40,4 @@ class TwitchAPI(BaseAPI):
             return None
 
     def get_cover_url(self, game_id: Optional[str]) -> Optional[str]:
-        """Oyun ID'sine göre kapak URL'sini döndürür."""
         return f"https://static-cdn.jtvnw.net/ttv-boxart/{game_id}-285x380.jpg" if game_id else None 

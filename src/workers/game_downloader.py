@@ -6,8 +6,6 @@ from src.api.twitch import TwitchAPI
 from src.api.steam import SteamAPI
 
 class GameDownloaderThread(BaseDownloaderThread):
-    """Oyun kapaklarını indiren iş parçacığı."""
-    
     def __init__(self, games: List[str], twitch_api: TwitchAPI, steam_api: SteamAPI, parent: Optional[QWidget] = None) -> None:
         super().__init__(games, twitch_api, parent)
         self.twitch_api: TwitchAPI = twitch_api
@@ -15,7 +13,6 @@ class GameDownloaderThread(BaseDownloaderThread):
         self.output_dir: str = "Oyunlar"
 
     def run(self) -> None:
-        """İndirme işlemini başlatır."""
         failed_items: List[str] = []
         downloaded_hashes: Set[str] = set()
         self.log_signal.emit("Oyun kapak indirme işlemi başladı...", "normal")
@@ -38,7 +35,7 @@ class GameDownloaderThread(BaseDownloaderThread):
 
             file_path: str = os.path.join(self.output_dir, f"{game_name}.jpg")
             hash_value: str = self._create_hash(file_path)
-            
+
             if hash_value in downloaded_hashes:
                 os.remove(file_path)
                 self.log_signal.emit(f"× {game_name} tekrar eden görsel.", "kirmizi")
@@ -47,4 +44,4 @@ class GameDownloaderThread(BaseDownloaderThread):
                 downloaded_hashes.add(hash_value)
                 self.log_signal.emit(f"✓ {game_name} indirildi.", "normal")
 
-        self.finished_signal.emit(failed_items) 
+        self.finished_signal.emit(failed_items)

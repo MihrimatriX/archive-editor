@@ -365,10 +365,6 @@ def film_eslestirmeleri() -> Dict[str, str]:
     }
 
 def hibrit_film_adi_cevir(film_adi: str, api: OMDbAPI) -> str:
-    """
-    Film adını İngilizce'ye çevirir.
-    Önce yerel eşleştirmeleri kontrol eder, bulamazsa API'yi kullanır.
-    """
     eslestirmeler = {
         "6 Super Kahraman": "Big Hero 6",
         "A Takimi": "The A-Team",
@@ -457,7 +453,6 @@ def hibrit_film_adi_cevir(film_adi: str, api: OMDbAPI) -> str:
         print(f"API hatası: {e}")
         return film_adi
 
-# Test amaçlı ana fonksiyon
 if __name__ == "__main__":
     api = OMDbAPI('1d794710')
     eslestirmeler = film_eslestirmeleri()

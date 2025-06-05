@@ -10,8 +10,6 @@ from src.workers.film_downloader import FilmDownloaderThread
 from src.api.omdb import OMDbAPI
 
 class FilmTab(QWidget):
-    """Film sekmesi widget'ı."""
-    
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
         self.film_dosya_yolu: Optional[str] = None
@@ -26,30 +24,28 @@ class FilmTab(QWidget):
         return None
 
     def _setup_ui(self) -> None:
-        """UI bileşenlerini oluşturur."""
         layout: QVBoxLayout = QVBoxLayout(self)
-        
+
         file_layout: QHBoxLayout = QHBoxLayout()
         self.dosya_label: QLabel = QLabel("Dosya seçilmedi")
         self.dosya_sec: QPushButton = QPushButton("Film Listesi Seç")
         self.dosya_sec.clicked.connect(self.dosya_sec_clicked)
-        
+
         file_layout.addWidget(self.dosya_label)
         file_layout.addWidget(self.dosya_sec)
-        
+
         self.list_widget: QListWidget = QListWidget()
         self.buton_indir: QPushButton = QPushButton("Film Kapaklarını İndir")
         self.buton_indir.clicked.connect(self.filmleri_indir)
         self.buton_cevir: QPushButton = QPushButton("İngilizce İsimlerle Değiştir")
         self.buton_cevir.clicked.connect(self.film_isimlerini_ingilizce_yap)
-        
+
         layout.addLayout(file_layout)
         layout.addWidget(self.list_widget)
         layout.addWidget(self.buton_indir)
         layout.addWidget(self.buton_cevir)
 
     def dosya_sec_clicked(self) -> None:
-        """Dosya seçme işlemini başlatır."""
         dosya_yolu, _ = QFileDialog.getOpenFileName(
             self,
             "Film Listesi Seç",
@@ -75,7 +71,6 @@ class FilmTab(QWidget):
                     main_window.log_yaz(f"Dosya okuma hatası: {e}", "kirmizi")
 
     def filmleri_indir(self) -> None:
-        """Film kapaklarını indirme işlemini başlatır."""
         if not self.film_dosya_yolu:
             main_window = self.get_main_window()
             if main_window:
@@ -95,7 +90,7 @@ class FilmTab(QWidget):
             return
 
         os.makedirs("Filmler", exist_ok=True)
-        
+
         main_window = self.get_main_window()
         if main_window:
             config = main_window.config
@@ -109,7 +104,6 @@ class FilmTab(QWidget):
             self.film_thread.start()
 
     def filmler_bitti(self, failed: list) -> None:
-        """Film indirme işlemi bittiğinde çağrılır."""
         if failed:
             with open("failed_films.txt", "w", encoding="utf-8") as f:
                 for film in failed:
@@ -119,7 +113,6 @@ class FilmTab(QWidget):
                 main_window.log_yaz("Bazı filmler indirilemedi. failed_films.txt dosyasına yazıldı.", "kirmizi")
 
     def film_durum_guncelle(self, mesaj: str, tur: str) -> None:
-        """Film durumunu günceller."""
         if mesaj.startswith("✓"):
             film_adi = mesaj[2:].split(" indirildi")[0]
             self.liste_ozet_guncelle(film_adi, True)
@@ -128,7 +121,6 @@ class FilmTab(QWidget):
             self.liste_ozet_guncelle(film_adi, False)
 
     def liste_ozet_guncelle(self, isim: str, basarili: bool) -> None:
-        """Liste öğesinin durumunu günceller."""
         for i in range(self.list_widget.count()):
             item = self.list_widget.item(i)
             if item.data(Qt.UserRole) == isim:
@@ -141,9 +133,8 @@ class FilmTab(QWidget):
                 break
 
     def film_isimlerini_ingilizce_yap(self) -> None:
-        """Film isimlerini İngilizce karşılıklarıyla değiştirir."""
         try:
-            from film_cevir import film_eslestirmeleri, hibrit_film_adi_cevir
+            from film_cevir import film_eslestirmeleri
         except ImportError:
             main_window = self.get_main_window()
             if main_window:
@@ -156,8 +147,7 @@ class FilmTab(QWidget):
         if main_window:
             config = main_window.config
             api = OMDbAPI(config.omdb_api_key)
-            
-            # Önce tüm filmleri eşleştirmelerden kontrol et
+
             for i in range(self.list_widget.count()):
                 item = self.list_widget.item(i)
                 turkce_adi = item.data(Qt.UserRole)
@@ -167,8 +157,7 @@ class FilmTab(QWidget):
                     item.setData(Qt.UserRole, ing_adi)
                     yeni_satirlar.append(ing_adi)
                     continue
-                
-                # Eşleştirmede yoksa API'den al
+
                 try:
                     ing_adi = api.film_adi_cevir(turkce_adi)
                     if ing_adi:
@@ -188,5 +177,5 @@ class FilmTab(QWidget):
                 main_window.log_yaz("İngilizce film isimleri FilmList_English.txt dosyasına kaydedildi.", "normal")
             except Exception as e:
                 main_window.log_yaz(f"Kaydetme hatası: {e}", "kirmizi")
-            
+
             main_window.log_yaz("Film isimleri İngilizce karşılıklarıyla değiştirildi.", "normal") 

@@ -3,13 +3,10 @@ from typing import Optional, Dict, Any
 from .base import BaseAPI
 
 class OMDbAPI(BaseAPI):
-    """OMDb API'si için sınıf."""
-    
     def __init__(self, api_key: str) -> None:
         self.api_key: str = api_key
 
     def search(self, film_name: str) -> Optional[str]:
-        """Film adına göre arama yapar."""
         url: str = f"http://www.omdbapi.com/?t={film_name}&apikey={self.api_key}"
         try:
             response: requests.Response = requests.get(url)
@@ -21,7 +18,6 @@ class OMDbAPI(BaseAPI):
         return None
 
     def get_cover_url(self, film_id: Optional[str]) -> Optional[str]:
-        """Film ID'sine göre kapak URL'sini döndürür."""
         if not film_id:
             return None
         url: str = f"http://www.omdbapi.com/?t={film_id}&apikey={self.api_key}"
@@ -37,7 +33,6 @@ class OMDbAPI(BaseAPI):
         return None
 
     def film_adi_cevir(self, film_adi: str) -> Optional[str]:
-        """Film adını İngilizce karşılığına çevirir."""
         url: str = f"http://www.omdbapi.com/?t={film_adi}&apikey={self.api_key}"
         try:
             response: requests.Response = requests.get(url)

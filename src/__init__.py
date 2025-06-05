@@ -1,8 +1,3 @@
-"""
-Archive Editor uygulaması için ana paket.
-"""
-
-# Gerekirse src dizinini otomatik olarak sys.path'e ekle
 import sys
 import os
 

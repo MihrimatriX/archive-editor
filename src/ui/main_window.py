@@ -11,8 +11,6 @@ from src.ui.text_tab import TextTab
 from src.utils.config import APIConfig
 
 class MainWindow(QMainWindow):
-    """Ana pencere sınıfı."""
-    
     def __init__(self) -> None:
         super().__init__()
         self.config = APIConfig()
@@ -21,7 +19,6 @@ class MainWindow(QMainWindow):
         self._setup_ui()
 
     def _setup_ui(self) -> None:
-        """UI bileşenlerini oluşturur."""
         self.setStyleSheet("""
             QMainWindow {
                 background-color: #121212;
@@ -75,28 +72,27 @@ class MainWindow(QMainWindow):
         main_layout = QVBoxLayout(main_widget)
         splitter = QSplitter()
         splitter.setOrientation(Qt.Vertical)
-        
+
         tab_widget = QTabWidget()
         tab_widget.addTab(GameTab(self), "Oyunlar")
         tab_widget.addTab(FilmTab(self), "Filmler")
         tab_widget.addTab(PDFTab(self), "PDF Oluşturucu")
         tab_widget.addTab(TextTab(self), "Metin Düzenleyici")
-        
+
         log_widget = QWidget()
         log_layout = QVBoxLayout(log_widget)
         log_layout.addWidget(QLabel("Log Paneli:"))
         self.text_log = QTextEdit()
         self.text_log.setReadOnly(True)
         log_layout.addWidget(self.text_log)
-        
+
         splitter.addWidget(tab_widget)
         splitter.addWidget(log_widget)
         splitter.setSizes([400, 200])
-        
+
         main_layout.addWidget(splitter)
         self.setCentralWidget(main_widget)
 
     def log_yaz(self, mesaj: str, tur: str = "normal") -> None:
-        """Log paneline mesaj yazar."""
         renk = "white" if tur == "normal" else "red"
         self.text_log.append(f"<span style='color:{renk}'>{mesaj}</span>") 

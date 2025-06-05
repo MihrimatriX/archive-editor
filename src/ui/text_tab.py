@@ -6,28 +6,25 @@ from PySide6.QtWidgets import (
 )
 
 class TextTab(QWidget):
-    """Metin sekmesi widget'ı."""
-    
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
         self.metin_dosya_yolu: Optional[str] = None
         self._setup_ui()
 
     def _setup_ui(self) -> None:
-        """UI bileşenlerini oluşturur."""
         layout: QVBoxLayout = QVBoxLayout(self)
-        
+
         text_file_layout: QHBoxLayout = QHBoxLayout()
         self.metin_dosya_label: QLabel = QLabel("Dosya seçilmedi")
         self.metin_dosya_sec: QPushButton = QPushButton("Metin Dosyası Seç")
         self.metin_dosya_sec.clicked.connect(self.metin_dosya_sec_clicked)
-        
+
         text_file_layout.addWidget(self.metin_dosya_label)
         text_file_layout.addWidget(self.metin_dosya_sec)
-        
+
         self.metin_editor: QTextEdit = QTextEdit()
         self.metin_editor.setReadOnly(False)
-        
+
         button_layout: QHBoxLayout = QHBoxLayout()
         self.sirala_buton: QPushButton = QPushButton("Alfabetik Sırala")
         self.sirala_buton.clicked.connect(self.metin_sirala)
@@ -35,17 +32,16 @@ class TextTab(QWidget):
         self.tekrar_temizle_buton.clicked.connect(self.tekrarlari_temizle)
         self.kaydet_buton: QPushButton = QPushButton("Kaydet")
         self.kaydet_buton.clicked.connect(self.metin_kaydet)
-        
+
         button_layout.addWidget(self.sirala_buton)
         button_layout.addWidget(self.tekrar_temizle_buton)
         button_layout.addWidget(self.kaydet_buton)
-        
+
         layout.addLayout(text_file_layout)
         layout.addWidget(self.metin_editor)
         layout.addLayout(button_layout)
 
     def metin_dosya_sec_clicked(self) -> None:
-        """Metin dosyası seçme işlemini başlatır."""
         dosya_yolu, _ = QFileDialog.getOpenFileName(
             self,
             "Metin Dosyası Seç",
@@ -64,7 +60,6 @@ class TextTab(QWidget):
                 self.parent().log_yaz(f"Dosya okuma hatası: {e}", "kirmizi")
 
     def metin_sirala(self) -> None:
-        """Metni alfabetik olarak sıralar."""
         metin = self.metin_editor.toPlainText()
         satirlar = [satir.strip() for satir in metin.splitlines() if satir.strip()]
         satirlar.sort()
@@ -72,7 +67,6 @@ class TextTab(QWidget):
         self.parent().log_yaz("Metin alfabetik olarak sıralandı.", "normal")
 
     def tekrarlari_temizle(self) -> None:
-        """Tekrar eden satırları temizler."""
         metin = self.metin_editor.toPlainText()
         satirlar = [satir.strip() for satir in metin.splitlines() if satir.strip()]
         benzersiz_satirlar = list(dict.fromkeys(satirlar))
@@ -81,7 +75,6 @@ class TextTab(QWidget):
         self.parent().log_yaz(f"{silinen_sayisi} tekrar eden satır temizlendi.", "normal")
 
     def metin_kaydet(self) -> None:
-        """Metni dosyaya kaydeder."""
         if not self.metin_dosya_yolu:
             dosya_yolu, _ = QFileDialog.getSaveFileName(
                 self,

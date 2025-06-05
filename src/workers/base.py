@@ -7,8 +7,6 @@ from PySide6.QtWidgets import QWidget
 from src.api.base import BaseAPI
 
 class BaseDownloaderThread(QThread):
-    """Tüm indirme iş parçacıkları için temel sınıf."""
-    
     log_signal: Signal = Signal(str, str)
     finished_signal: Signal = Signal(list)
 
@@ -19,12 +17,10 @@ class BaseDownloaderThread(QThread):
         self.output_dir: str = ""
 
     def _create_hash(self, file_path: str) -> str:
-        """Dosya için MD5 hash oluşturur."""
         with open(file_path, 'rb') as f:
             return hashlib.md5(f.read()).hexdigest()
 
     def _download_cover(self, item_name: str, cover_url: str) -> bool:
-        """Kapak görselini indirir."""
         try:
             response: requests.Response = requests.get(cover_url)
             if response.status_code == 200:

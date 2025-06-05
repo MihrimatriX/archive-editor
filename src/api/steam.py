@@ -3,8 +3,6 @@ from typing import Optional, Dict, Any, List
 from .base import BaseAPI
 
 class SteamAPI(BaseAPI):
-    """Steam API'si için sınıf."""
-    
     def __init__(self, api_key: str) -> None:
         self.api_key: str = api_key
         self.base_url: str = "https://api.steampowered.com/ISteamApps/GetAppList/v2"
@@ -13,7 +11,6 @@ class SteamAPI(BaseAPI):
         self._load_app_list()
 
     def _load_app_list(self) -> None:
-        """Steam uygulama listesini yükler."""
         try:
             response: requests.Response = requests.get(self.base_url)
             if response.status_code == 200:
@@ -24,15 +21,12 @@ class SteamAPI(BaseAPI):
             self._app_list_cache = []
 
     def _clean_game_name(self, game_name: str) -> str:
-        """Oyun adını temizler ve standartlaştırır."""
-        tr_chars = {'ı': 'i', 'ğ': 'g', 'ü': 'u', 'ş': 's', 'ö': 'o', 'ç': 'c',
-                   'İ': 'I', 'Ğ': 'G', 'Ü': 'U', 'Ş': 'S', 'Ö': 'O', 'Ç': 'C'}
+        tr_chars = {'ı': 'i', 'ğ': 'g', 'ü': 'u', 'ş': 's', 'ö': 'o', 'ç': 'c', 'İ': 'I', 'Ğ': 'G', 'Ü': 'U', 'Ş': 'S', 'Ö': 'O', 'Ç': 'C'}
         for tr_char, eng_char in tr_chars.items():
             game_name = game_name.replace(tr_char, eng_char)
         return ''.join(c.lower() for c in game_name if c.isalnum() or c.isspace())
 
     def search(self, game_name: str) -> Optional[str]:
-        """Oyun adına göre arama yapar."""
         try:
             params: Dict[str, str] = {
                 "term": game_name,
@@ -50,7 +44,6 @@ class SteamAPI(BaseAPI):
         return None
 
     def get_cover_url(self, game_id: Optional[str]) -> Optional[str]:
-        """Oyun ID'sine göre kapak URL'sini döndürür."""
         if not game_id:
             return None
         url = f"https://cdn.akamai.steamstatic.com/steam/apps/{game_id}/library_600x900.jpg"
@@ -58,4 +51,4 @@ class SteamAPI(BaseAPI):
             response: requests.Response = requests.head(url)
             return url if response.status_code == 200 else None
         except Exception:
-            return None 
+            return None
