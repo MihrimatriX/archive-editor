@@ -15,8 +15,8 @@ class PDFGenerator(QThread):
     def __init__(self, image_list: List[str], parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
         self.image_list: List[str] = image_list
-        self.long_edge: float = 18 * cm
-        self.short_edge: float = 12 * cm
+        self.long_edge: float = 15 * cm
+        self.short_edge: float = 11 * cm
         self.margin: float = 2 * cm
         self.padding: float = 0 * cm
 

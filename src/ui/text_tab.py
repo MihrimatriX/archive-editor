@@ -11,6 +11,14 @@ class TextTab(QWidget):
         self.metin_dosya_yolu: Optional[str] = None
         self._setup_ui()
 
+    def get_main_window(self):
+        parent = self.parent()
+        while parent is not None:
+            if hasattr(parent, "config"):
+                return parent
+            parent = parent.parent()
+        return None
+
     def _setup_ui(self) -> None:
         layout: QVBoxLayout = QVBoxLayout(self)
 
@@ -60,11 +68,31 @@ class TextTab(QWidget):
                 self.parent().log_yaz(f"Dosya okuma hatası: {e}", "kirmizi")
 
     def metin_sirala(self) -> None:
+        import locale
+        try:
+            # Türkçe locale'i ayarla
+            locale.setlocale(locale.LC_COLLATE, 'tr_TR.UTF-8')
+        except:
+            try:
+                # Windows için alternatif
+                locale.setlocale(locale.LC_COLLATE, 'Turkish_Turkey.1254')
+            except:
+                pass
+
         metin = self.metin_editor.toPlainText()
         satirlar = [satir.strip() for satir in metin.splitlines() if satir.strip()]
-        satirlar.sort()
+        
+        # Türkçe karakter desteği ile sıralama
+        try:
+            satirlar.sort(key=locale.strxfrm)
+        except:
+            # Eğer locale ayarlanamazsa normal sıralama yap
+            satirlar.sort()
+            
         self.metin_editor.setPlainText("\n".join(satirlar))
-        self.parent().log_yaz("Metin alfabetik olarak sıralandı.", "normal")
+        main_window = self.get_main_window()
+        if main_window:
+            main_window.log_yaz("Metin alfabetik olarak sıralandı.", "normal")
 
     def tekrarlari_temizle(self) -> None:
         metin = self.metin_editor.toPlainText()
@@ -72,24 +100,26 @@ class TextTab(QWidget):
         benzersiz_satirlar = list(dict.fromkeys(satirlar))
         self.metin_editor.setPlainText("\n".join(benzersiz_satirlar))
         silinen_sayisi = len(satirlar) - len(benzersiz_satirlar)
-        self.parent().log_yaz(f"{silinen_sayisi} tekrar eden satır temizlendi.", "normal")
+        main_window = self.get_main_window()
+        if main_window:
+            main_window.log_yaz(f"{silinen_sayisi} tekrar eden satır temizlendi.", "normal")
 
     def metin_kaydet(self) -> None:
-        if not self.metin_dosya_yolu:
+        try:
             dosya_yolu, _ = QFileDialog.getSaveFileName(
                 self,
-                "Metin Dosyasını Kaydet",
+                "Metni Kaydet",
                 "",
                 "Text Dosyaları (*.txt);;Tüm Dosyalar (*.*)"
             )
-            if not dosya_yolu:
-                return
-            self.metin_dosya_yolu = dosya_yolu
-            self.metin_dosya_label.setText(os.path.basename(dosya_yolu))
 
-        try:
-            with open(self.metin_dosya_yolu, "w", encoding="utf-8") as f:
-                f.write(self.metin_editor.toPlainText())
-            self.parent().log_yaz("Dosya başarıyla kaydedildi.", "normal")
+            if dosya_yolu:
+                with open(dosya_yolu, "w", encoding="utf-8") as f:
+                    f.write(self.metin_editor.toPlainText())
+                main_window = self.get_main_window()
+                if main_window:
+                    main_window.log_yaz("Metin başarıyla kaydedildi!", "normal")
         except Exception as e:
-            self.parent().log_yaz(f"Dosya kaydetme hatası: {e}", "kirmizi") 
+            main_window = self.get_main_window()
+            if main_window:
+                main_window.log_yaz(f"Dosya kaydetme hatası: {e}", "kirmizi") 
